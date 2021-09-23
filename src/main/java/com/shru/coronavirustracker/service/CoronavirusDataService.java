@@ -21,7 +21,14 @@ import com.shru.coronavirustracker.model.LocationDetails;
 @Service
 public class CoronavirusDataService {
     private static String VIRUS_DATA_URL = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv";
+  
     private List<LocationDetails> allDetails = new ArrayList<LocationDetails>();
+	
+    
+    public List<LocationDetails> getAllDetails() {
+		return allDetails;
+	}
+
 	@PostConstruct
 	@Scheduled(cron="* * 1 * * *")
 	public void fetchVirusData() throws IOException, InterruptedException {
@@ -37,8 +44,10 @@ public class CoronavirusDataService {
 			LocationDetails localDetails	= new LocationDetails();
 			localDetails.setCountry(record.get("Country/Region"));
 			localDetails.setState(record.get("Province/State"));
-			localDetails.setLatestTotalCases(Integer.parseInt(record.get(record.size() -1)));
-			System.out.println(localDetails);
+            int latestCases = Integer.parseInt(record.get(record.size() - 1));
+			 int prevDayCases = Integer.parseInt(record.get(record.size() - 2));
+			 localDetails.setLatestTotalCases(latestCases);
+			 localDetails.setDiffFromPrevDay(latestCases - prevDayCases);
 			newDetails.add(localDetails);
 		}
 		    this.allDetails= newDetails;
