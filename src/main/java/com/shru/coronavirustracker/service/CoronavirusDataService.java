@@ -1,6 +1,7 @@
 package com.shru.coronavirustracker.service;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -8,6 +9,8 @@ import java.net.http.HttpResponse;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVRecord;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -21,7 +24,13 @@ public class CoronavirusDataService {
                 .uri(URI.create(VIRUS_DATA_URL))
                 .build();
         HttpResponse<String> httpResponse = client.send(request, HttpResponse.BodyHandlers.ofString());		
-		System.out.println(httpResponse.body());
+		StringReader csvBodyReader = new StringReader(httpResponse.body()); 
+		Iterable<CSVRecord> records = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(csvBodyReader);
+		for (CSVRecord record : records) {
+		    String states = record.get("Province/State");
+		   System.out.println(states);
+		}
+		    
 	}
 	
 }
